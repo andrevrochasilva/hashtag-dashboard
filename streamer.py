@@ -18,6 +18,9 @@ nlp = spacy.load("en_core_web_sm")
 class MyStreamListener(tweepy.StreamListener):
 
     def on_status(self, status):
+        print('***************************')
+        print('New tweeet?')
+        print('***************************')
         try:
             if not status.extended_tweet['full_text'].startswith('RT'):
                 words = nlp(status.extended_tweet['full_text'])
@@ -25,9 +28,8 @@ class MyStreamListener(tweepy.StreamListener):
                 for word in words:
                     if not word.is_stop and word.pos_ not in ['PUNCT', 'SYM', 'SPACE', 'X']:
                         arr.append(word.text)
-                        arr.append(word.pos_)
-
                 print(arr)
+                # Write arr to pubsub
         except AttributeError as e:
             if not status.text.startswith('RT'):
                 words = nlp(status.text)
@@ -35,8 +37,9 @@ class MyStreamListener(tweepy.StreamListener):
                 for word in words:
                     if not word.is_stop and word.pos_ not in ['PUNCT', 'SYM', 'SPACE', 'X']:
                         arr.append(word.text)
-                        arr.append(word.pos_)
                 print(arr)
+                # Write arr to pubsub
+                yield(arr)
 
 
 myStreamListener = MyStreamListener()
